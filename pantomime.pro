@@ -16,6 +16,8 @@ MOC_DIR = tmp/moc
 RCC_DIR = tmp/rcc
 
 HEADERS = \
+    include/loop-gesture.h \
+    include/loop-recognizer.h \
     include/panto.h
 
 OTHER_FILES += \
@@ -29,6 +31,8 @@ OTHER_FILES += \
 
 SOURCES += \
     src/panto.cpp \
+    src/loop-gesture.cpp \
+    src/loop-recognizer.cpp \
     src/main.cpp
 
 unix:!symbian:!maemo5 {
