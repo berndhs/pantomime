@@ -4,7 +4,10 @@
 namespace geuzen
 {
 LoopGesture::LoopGesture (QObject *parent)
-  :QGesture (parent)
+  :QGesture (parent),
+   haveStarted (0),
+   triggered (false),
+   finished (false)
 {
   sequences.clear();
   qDebug () << __PRETTY_FUNCTION__;
@@ -13,7 +16,6 @@ LoopGesture::LoopGesture (QObject *parent)
 Qt::GestureState
 LoopGesture::state () const
 {
-  qDebug () << __PRETTY_FUNCTION__;
   return QGesture::state();
 }
 
@@ -31,7 +33,7 @@ LoopGesture::reset ()
   sequences.clear();
   triggered = false;
   finished = false;
-  started = false;
+  haveStarted = 0;
 }
 
 } // namespace

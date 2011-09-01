@@ -4,6 +4,7 @@
 
 #include <QTimer>
 
+#define PANTO_PRETTY_FUNCTION "__panto__" << __PRETTY_FUNCTION__
 Panto::Panto(QWidget *parent)
   :QDeclarativeView(parent),
    looper (),
@@ -11,7 +12,7 @@ Panto::Panto(QWidget *parent)
 {
   loopType = QGestureRecognizer::registerRecognizer (&looper);
   grabGesture(loopType);
-  qDebug () << __PRETTY_FUNCTION__ << " recognizer type " << hex << loopType << dec;
+  qDebug () << PANTO_PRETTY_FUNCTION << " recognizer type " << hex << loopType << dec;
 }
 
 void
@@ -23,7 +24,7 @@ Panto::start ()
   show ();
   
   QDeclarativeItem * root = qobject_cast <QDeclarativeItem*> (rootObject());
-  qDebug () << __PRETTY_FUNCTION__ << " root " << root;
+  qDebug () << PANTO_PRETTY_FUNCTION << " root " << root;
   if (root) {
     #if 1
     QDeclarativeItem * mouseArea = root->findChild<QDeclarativeItem*> ("GestureTrap");
@@ -45,12 +46,12 @@ Panto::start ()
 bool
 Panto::eventFilter(QObject * watched, QEvent *evt)
 {
-  qDebug () << __PRETTY_FUNCTION__ <<  " Panto filter " << watched << " event " << evt;
+  qDebug () << PANTO_PRETTY_FUNCTION <<  " Panto filter " << watched << " event " << evt;
   bool weHandledIt (false);
   if (evt) {
     QEvent::Type tipo = evt->type ();
     if (tipo ==QEvent::Gesture ) {
-      qDebug () << __PRETTY_FUNCTION__ << "GESTURE event for " << watched ;
+      qDebug () << PANTO_PRETTY_FUNCTION << "GESTURE event for " << watched ;
       QGestureEvent * gev = dynamic_cast <QGestureEvent*> (evt);
       geuzen::LoopGesture * loGe = qobject_cast<geuzen::LoopGesture*>(gev->gesture(loopType));
       if (loGe) {
@@ -69,7 +70,7 @@ Panto::eventFilter(QObject * watched, QEvent *evt)
         qDebug() << "    gesture " << loGe << " state " <<  loGe->state();
       }
       if (gev) {
-         qDebug ()<< __PRETTY_FUNCTION__  << " override what? gev " << gev;
+         qDebug ()<< PANTO_PRETTY_FUNCTION  << " override what? gev " << gev;
       }
       qDebug () << "          override event " << evt << " for " << watched;
       if (loGe) {
@@ -115,7 +116,7 @@ Panto::handleLoopGesture (geuzen::LoopGesture * gesture, QObject * target)
 bool
 Panto::event (QEvent *evt)
 {
-  qDebug () << __PRETTY_FUNCTION__ << evt;
+  qDebug () << PANTO_PRETTY_FUNCTION << evt;
   if (evt) {
     QEvent::Type tipo = evt->type ();
     if (tipo ==QEvent::Gesture ) {
@@ -142,7 +143,7 @@ Panto::event (QEvent *evt)
     }
   }
   bool handled = QDeclarativeView::event (evt);
-  qDebug () << __PRETTY_FUNCTION__ << " returning " << handled;
+  qDebug () << PANTO_PRETTY_FUNCTION << " returning " << handled;
   return handled;
 }
  
@@ -153,3 +154,5 @@ Panto::allDone ()
 {
   emit quit();
 }
+
+#undef PANTO_PRETTY_FUNCTION

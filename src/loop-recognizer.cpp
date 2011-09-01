@@ -4,6 +4,7 @@
 #include <QGestureEvent>
 #include <QTouchEvent>
 
+#define GEUZEN_PRETTY_FUNCTION  "__geuzen__" << __PRETTY_FUNCTION__
 namespace geuzen
 {
 LoopRecognizer::LoopRecognizer ()
@@ -12,39 +13,50 @@ LoopRecognizer::LoopRecognizer ()
   circle.clear();
   circle << 0x0101 << 0x01ff << 0xffff << 0xff01;
   circleLen = circle.length();
-  qDebug () << __PRETTY_FUNCTION__;
+  qDebug () << GEUZEN_PRETTY_FUNCTION;
   qDebug () << " circle is " << hex << circle << dec;
 }
 
 QGesture*
 LoopRecognizer::create (QObject *target)
 {
-  qDebug () << __PRETTY_FUNCTION__;
+  qDebug () << GEUZEN_PRETTY_FUNCTION;
   return new LoopGesture (target);
 }
 
 QGestureRecognizer::Result
 LoopRecognizer::recognize (QGesture * gesture, QObject *watched, QEvent *evt)
 { 
-qDebug () << __PRETTY_FUNCTION__ << gesture << watched << evt;
+qDebug () << GEUZEN_PRETTY_FUNCTION << gesture << watched << evt;
   geuzen::LoopGesture * leGo = static_cast<geuzen::LoopGesture*> (gesture);
   if (!leGo) {
     return QGestureRecognizer::Ignore;
   }
+  qDebug () << "    leGo " << leGo <<  " state " << leGo->state();
+  qDebug () << "         flags st " << leGo->haveStarted << " tr " << leGo->triggered
+                                    << " fin " << leGo->finished;
   QGestureRecognizer::Result result (QGestureRecognizer::Ignore);
   QEvent::Type tipo = evt->type();
   QTouchEvent         * tev  = static_cast<QTouchEvent*> (evt);
   QMouseEvent         * mev  = static_cast<QMouseEvent*> (evt);
   QGraphicsSceneMouseEvent *gev = static_cast<QGraphicsSceneMouseEvent*> (evt);
+  QGestureEvent       * gestev = static_cast<QGestureEvent*> (evt);
+  QList<QGesture*> childGestures;
 
   switch (tipo) {
   case QEvent::Gesture:
-    qDebug () << __PRETTY_FUNCTION__ 
-             << "Gesture event " << evt->type();
+    qDebug () << GEUZEN_PRETTY_FUNCTION 
+             << " Gesture event " << evt->type();
     qDebug() << "  gesture " << gesture;
     qDebug() << "  list " << dynamic_cast<QGestureEvent*>(evt)->gestures();
-    dynamic_cast<QGestureEvent*>(evt)->accept();
-    result = QGestureRecognizer::Ignore | QGestureRecognizer::ConsumeEventHint;
+    childGestures = gestev->gestures();
+    if (childGestures.contains (leGo)) {
+      if (leGo->triggered) {
+        result = QGestureRecognizer::FinishGesture;
+      } 
+    } else {
+      result = QGestureRecognizer::Ignore | QGestureRecognizer::ConsumeEventHint;
+    }
     break;
   case QEvent::GraphicsSceneMouseMove:
     result = handleCursorMove (gesture,gev->scenePos());
@@ -87,7 +99,7 @@ qDebug () << __PRETTY_FUNCTION__ << gesture << watched << evt;
 void
 LoopRecognizer::reset (QGesture *gesture)
 {
-  qDebug () << __PRETTY_FUNCTION__;
+  qDebug () << GEUZEN_PRETTY_FUNCTION;
   LoopGesture *cg = qobject_cast <LoopGesture*>(gesture);
   if (cg) {
     cg->reset();
@@ -100,7 +112,7 @@ QGestureRecognizer::Result
 LoopRecognizer::handleCursorMove (QGesture *gesture,
                                   QPointF scenePoint)
 {
-  qDebug () << __PRETTY_FUNCTION__ << gesture << scenePoint;
+  qDebug () << GEUZEN_PRETTY_FUNCTION << gesture << scenePoint;
   if (gesture == 0) {
     return QGestureRecognizer::Ignore;
   }
@@ -111,12 +123,12 @@ LoopRecognizer::handleCursorMove (QGesture *gesture,
   }
   QPointF last = loGe->lastPos;
   loGe->lastPos = scenePoint;
-  if (!loGe->started) {
-    loGe->started = true;
+  if (!loGe->haveStarted) {
+    loGe->haveStarted = 2;
     loGe->finished = false;
     loGe->triggered = false;
     loGe->setHotSpot (scenePoint);
-    qDebug () << __PRETTY_FUNCTION__ << " ____maybbe " << gesture << gesture->state();
+    qDebug () << GEUZEN_PRETTY_FUNCTION << " ____maybbe " << gesture << gesture->state();
     return QGestureRecognizer::MayBeGesture;
   }
   quint8 leftRight (0);
@@ -137,7 +149,7 @@ LoopRecognizer::handleCursorMove (QGesture *gesture,
   if (chopTailCircle(loGe->sequences)) {
     qDebug () << " detected CIRCLE";
     loGe->sequences.clear();
-    qDebug () << __PRETTY_FUNCTION__ << " fer SURE " << gesture << gesture->state();
+    qDebug () << GEUZEN_PRETTY_FUNCTION << " fer SURE " << gesture << gesture->state();
     if (!loGe->triggered) {
       loGe->triggered = true;
       loGe->finished = false;
@@ -171,7 +183,7 @@ LoopRecognizer::chopTailCircle (LoopSegmentList & sequence)
       }
     }
     if (found) {
-      qDebug () << __PRETTY_FUNCTION__ << " found circle";
+      qDebug () << GEUZEN_PRETTY_FUNCTION << " found circle";
       for (int end=0;end<circleLen;end++) {
         qDebug () << "    chop " << sequence.last();
         sequence.removeLast();
@@ -181,6 +193,7 @@ LoopRecognizer::chopTailCircle (LoopSegmentList & sequence)
   }
   return false;
 }
+#undef GEUZEN_PRETTY_FUNCTION
 
   
 } // namespace
