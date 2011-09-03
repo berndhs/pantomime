@@ -1,4 +1,5 @@
 import QtQuick 1.1
+import moui.geuzen.utils.static 1.0
 
 Rectangle {
   width: 4096
@@ -6,13 +7,44 @@ Rectangle {
   id: mainBox
   objectName:"MainBox"
   color: "#ddee33"
-
+  rotation: 0
+  x: isPortrait ? (isInverted ? (width - height) * 0.5 : (height - width) * 0.5) : 0
+  property bool isPortrait: false
+  property bool isInverted: false
+  property real rowHeight: 32
+  property real mainWidth: isPortrait ? height : width
+  property real mainHeight: isPortrait ? width : height
+  property real orientMargin: (isPortrait ? Math.abs (width - height) * 0.5 : 0)
+  
+  GeuzenOrientation {
+    id: orientationWatcher
+    onRotationChange: {
+      mainBox.isPortrait = portrait
+      mainBox.rotation = rotation
+      mainBox.isInverted = inverted
+      console.log ("orientation port " + mainBox.isPortrait)
+      console.log ("main box x " + mainBox.x + " y " + mainBox.y)
+      console.log ("rect size: " + mainBox.width + ", " + mainBox.height)
+      console.log ("my size  : " + mainWidth + ", " + mainHeight)
+    }
+  }
+  
   function scaleUpText (theFactor) {
     console.log ("scale " + mainText.scale + " by " + theFactor)
     mainText.scale = Math.min (mainText.maxScale, 
                        Math.max (mainText.minScale, mainText.scale * theFactor))
     console.log ("result " + mainText.scale)
   }
+  
+  function rotateText (theAngle) {
+    mainTextBox.rotation += theAngle
+    if (mainTextBox.rotation < 0) {
+      mainTextBox.rotation += 360
+    } else if (mainTextBox.rotation > 360) {
+      mainTextBox.rotation -= 360
+    }
+  }
+
 
   PinchArea {
     anchors.fill: bottomHalf
@@ -41,6 +73,24 @@ Rectangle {
       horizontalCenter: parent.horizontalCenter
     }
     color: "transparent"
+    Rectangle {
+      id:quitButton
+      width: 80
+      height: 80
+      z:10
+      anchors { top: topHalf.top; right: topHalf.right; rightMargin: mainBox.orientMargin }
+      color: "red"
+      Text {
+        anchors.centerIn: parent
+        text: "Quit"
+      }
+      MouseArea {
+        anchors.fill: parent
+        onClicked: {
+          Qt.quit()
+        }
+      }
+    }
     Rectangle {
       id:mainTextBox
       width: 400
@@ -94,7 +144,7 @@ Rectangle {
     }
     Rectangle {
       height:  200
-      width: 400
+      width: bottomHalf.width * 0.4
       id: theButton
       objectName:"BigButton"
       color: Qt.darker (bottomHalf.color, 2.0)
@@ -108,23 +158,17 @@ Rectangle {
         top:listArea.top
       }
       
-      MouseArea {
-        id:gestureTrap
-        objectName:"GestureTrap"
-        anchors.fill: parent
-        onPressed: {
-          console.log ("pressed button")
-        }
-        function handleLoopGesture () {
-          mainTextBox.rotation += 15
-          console.log (objectName + " loop gesture " + mainTextBox.rotation)
-          return true;
-        }
-       
-      }
-      
     }
-    
+    GeuzenLoopArea {
+      anchors.fill: theButton
+      onLooped: {
+        console.log ("loop detected")
+        mainBox.rotateText (15)
+      }
+    }   
   }
-  
+  Component.onCompleted: {
+    console.log ("load completed, calling start routines")
+    orientationWatcher.start ()
+  }
 }

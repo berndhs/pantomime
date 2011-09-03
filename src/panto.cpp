@@ -1,43 +1,53 @@
 #include "panto.h"
-#include "loop-recognizer.h"
 #include <QGestureEvent>
 
 #include <QTimer>
 
 #define PANTO_PRETTY_FUNCTION "__panto__" << __PRETTY_FUNCTION__
-Panto::Panto(QWidget *parent)
+Panto::Panto(QWidget *parent, bool isPhone)
   :QDeclarativeView(parent),
-   looper (),
+   isProbablyPhone (isPhone),
+   sizeSet (false),
+   desiredSize (QSize (4096,4096)),
    bottom (0)
 {
-  loopType = QGestureRecognizer::registerRecognizer (&looper);
-  grabGesture(loopType);
-  qDebug () << PANTO_PRETTY_FUNCTION << " recognizer type " << hex << loopType << dec;
+}
+
+void
+Panto::setSize (int width, int height)
+{
+  desiredSize = QSize (width, height);
+  sizeSet = true;
 }
 
 void
 Panto::start ()
 {    
 
-  showFullScreen ();
+  if (isProbablyPhone) {
+    showFullScreen ();
+  }
   setSource (QUrl("qrc:/qml/main.qml"));
+  if (sizeSet) {
+    resize (desiredSize);
+  }
   show ();
   
   QDeclarativeItem * root = qobject_cast <QDeclarativeItem*> (rootObject());
   qDebug () << PANTO_PRETTY_FUNCTION << " root " << root;
   if (root) {
-    #if 1
+    #if 0
     QDeclarativeItem * mouseArea = root->findChild<QDeclarativeItem*> ("GestureTrap");
     if (mouseArea) {
       mouseArea->grabGesture (loopType);
       mouseArea->installEventFilter (this);
     }
-    #endif
     QDeclarativeItem * bigButton = root->findChild<QDeclarativeItem*> ("BigButton");
     if (bigButton) {
       bigButton->grabGesture (loopType);
       bigButton->installEventFilter (this);
     }
+    #endif
   }
 
   //QTimer::singleShot (10*1000, this, SLOT(allDone()));
@@ -47,76 +57,16 @@ bool
 Panto::eventFilter(QObject * watched, QEvent *evt)
 {
   qDebug () << PANTO_PRETTY_FUNCTION <<  " Panto filter " << watched << " event " << evt;
+
   bool weHandledIt (false);
-  if (evt) {
-    QEvent::Type tipo = evt->type ();
-    if (tipo ==QEvent::Gesture ) {
-      qDebug () << PANTO_PRETTY_FUNCTION << "GESTURE event for " << watched ;
-      QGestureEvent * gev = dynamic_cast <QGestureEvent*> (evt);
-      geuzen::LoopGesture * loGe = qobject_cast<geuzen::LoopGesture*>(gev->gesture(loopType));
-      if (loGe) {
-        bool done = handleLoopGesture (loGe,watched);
-        gev->setAccepted (done);
-        return done;
-      }
-      if (gev) {
-         qDebug () << " gev " << gev;
-         return true;
-      }
-    } else if (tipo == QEvent::GestureOverride) {
-      QGestureEvent * gev = dynamic_cast <QGestureEvent*> (evt);
-      geuzen::LoopGesture * loGe = qobject_cast<geuzen::LoopGesture*>(gev->gesture(loopType));
-      if (loGe) {
-        qDebug() << "    gesture " << loGe << " state " <<  loGe->state();
-      }
-      if (gev) {
-         qDebug ()<< PANTO_PRETTY_FUNCTION  << " override what? gev " << gev;
-      }
-      qDebug () << "          override event " << evt << " for " << watched;
-      if (loGe) {
-        bool done = handleLoopGesture (loGe,watched);
-        gev->setAccepted (done);
-        return done;
-      }
-      QVariant retVar;
-      QMetaObject::invokeMethod(watched,"handleLoopGesture",
-         Q_RETURN_ARG (QVariant,retVar));
-      qDebug () << "          object says " << retVar;
-      if (retVar.isValid()) {
-        bool finished = retVar.toBool();
-        if (finished) {
-          loGe->reset();
-        }
-        return finished;
-      } else {
-        return false;
-      }
-    }
- 
-  }
+  
   return weHandledIt;
 }
 
 bool
-Panto::handleLoopGesture (geuzen::LoopGesture * gesture, QObject * target)
-{
-  QVariant retVar;
-  QMetaObject::invokeMethod (target,"handleLoopGesture",
-    Q_RETURN_ARG (QVariant, retVar));
-  if (retVar.isValid()) {
-    bool done = retVar.toBool();
-    if (done) {
-      gesture->reset();
-      return true;
-    }
-  }
-  return false;
-}
-  
-bool
 Panto::event (QEvent *evt)
 {
-  qDebug () << PANTO_PRETTY_FUNCTION << evt;
+  //qDebug () << PANTO_PRETTY_FUNCTION << evt;
   if (evt) {
     QEvent::Type tipo = evt->type ();
     if (tipo ==QEvent::Gesture ) {
@@ -143,7 +93,7 @@ Panto::event (QEvent *evt)
     }
   }
   bool handled = QDeclarativeView::event (evt);
-  qDebug () << PANTO_PRETTY_FUNCTION << " returning " << handled;
+  //qDebug () << PANTO_PRETTY_FUNCTION << " returning " << handled;
   return handled;
 }
  

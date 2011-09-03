@@ -3,18 +3,19 @@
 
 #include <QDeclarativeView>
 #include <QDeclarativeItem>
+#include <QSize>
 #include <QMap>
-
-#include "loop-recognizer.h"
 
 
 class Panto : public QDeclarativeView
 {
 Q_OBJECT
 public:
-  explicit Panto(QWidget *parent = 0);
+  explicit Panto(QWidget *parent = 0, bool isPhone = false);
   
   void start ();
+
+  void setSize (int width, int height);
 
 signals:
 
@@ -30,11 +31,10 @@ public slots:
   void allDone ();
   
 private:
-
-  bool handleLoopGesture (geuzen::LoopGesture * gesture, QObject * target);
   
-  geuzen::LoopRecognizer              looper;
-  Qt::GestureType                     loopType;
+  bool                                isProbablyPhone;
+  bool                                sizeSet;
+  QSize                               desiredSize;
   QDeclarativeItem                   *bottom;
 
 };

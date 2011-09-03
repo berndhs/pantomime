@@ -3,11 +3,11 @@
 
 namespace geuzen
 {
-LoopGesture::LoopGesture (QObject *parent)
+LoopGesture::LoopGesture (int tag, QObject *parent)
   :QGesture (parent),
-   haveStarted (0),
+   haveStarted (false),
    triggered (false),
-   finished (false)
+   myTag (tag)
 {
   sequences.clear();
   qDebug () << __PRETTY_FUNCTION__;
@@ -22,7 +22,6 @@ LoopGesture::state () const
 Qt::GestureType
 LoopGesture::gestureType () const
 {
-  qDebug () << __PRETTY_FUNCTION__;
   return Qt::CustomGesture;
 }
 
@@ -32,7 +31,6 @@ LoopGesture::reset ()
   qDebug () << __PRETTY_FUNCTION__;
   sequences.clear();
   triggered = false;
-  finished = false;
   haveStarted = 0;
 }
 

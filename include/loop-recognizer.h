@@ -12,24 +12,40 @@
 namespace geuzen
 {
 
+class LoopArea;
+
 class LoopRecognizer : public QGestureRecognizer
 {
 public:
 
-  LoopRecognizer ();
+  LoopRecognizer (LoopArea * userItem=0);
 
   QGesture * create (QObject *target);
+  
+  LoopArea * userItem () { return user; }
+  void setUserItem (LoopArea *userItem) { user = userItem; }
 
   Result recognize (QGesture * gesture, QObject *watched, QEvent * evt);
   void reset (QGesture * gesture);
+  
+  void setType (Qt::GestureType t) { myType = int(t); }
+  
+  void notifyUser ();
+  
+  
+signals:
+  
+  void foundLoop ();
   
 private:
   
   Result handleCursorMove (QGesture * gesture, QPointF scenePoint);
   bool chopTailCircle (LoopSegmentList & sequence);
   
+  LoopArea        *user;
   LoopSegmentList  circle;
-  int          circleLen;
+  int              circleLen;
+  int              myType;
 
 
 };

@@ -4,6 +4,10 @@ PROJECT = pantomime
 
 TEMPLATE = app
 QT += core gui declarative
+CONFIG += mobility
+MOBILITY += systeminfo
+MOBILITY += sensors
+
 
 QMAKE_CXXFLAGS += -std=c++0x
 
@@ -18,7 +22,9 @@ RCC_DIR = tmp/rcc
 HEADERS = \
     include/loop-gesture.h \
     include/loop-recognizer.h \
-    include/panto.h
+    include/loop-area.h \
+    include/panto.h \
+    include/orientation.h
 
 OTHER_FILES += \
     qtc_packaging/debian_harmattan/rules \
@@ -33,7 +39,9 @@ SOURCES += \
     src/panto.cpp \
     src/loop-gesture.cpp \
     src/loop-recognizer.cpp \
-    src/main.cpp
+    src/loop-area.cpp \
+    src/main.cpp \
+    src/orientation.cpp
 
 unix:!symbian:!maemo5 {
     target.path = /opt/pantomime/bin
@@ -51,3 +59,5 @@ unix:!symbian:!maemo5 {
     icon.path = /usr/share/icons/hicolor/64x64/apps
     INSTALLS += icon
 }
+
+

@@ -17,22 +17,26 @@ class LoopGesture : public QGesture
 {
 Q_OBJECT
 public:
-  LoopGesture (QObject * parent = 0);
+  LoopGesture (int tag, QObject * parent = 0);
 
   Qt::GestureState state () const;
 
   Qt::GestureType gestureType () const;
 
   void reset ();
+  
+  int tag () { return myTag; }
+  void setTag (int t) { myTag = t; }
 
 private:
 
   QPointF         lastPos;
   LoopSegmentList sequences;
   
-  int haveStarted;
+  bool haveStarted;
   bool triggered;
-  bool finished;
+  
+  int  myTag;
   
   
 friend class LoopRecognizer;
