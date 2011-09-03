@@ -39,7 +39,7 @@ signals:
   
 private:
   
-  Result handleCursorMove (QGesture * gesture, QPointF scenePoint);
+  Result handleCursorMove (LoopGesture * gesture, QPointF scenePoint);
   bool chopTailCircle (LoopSegmentList & sequence);
   
   LoopArea        *user;

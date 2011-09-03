@@ -31,14 +31,14 @@ LoopRecognizer::create (QObject *target)
 QGestureRecognizer::Result
 LoopRecognizer::recognize (QGesture * gesture, QObject *watched, QEvent *evt)
 { 
-  geuzen::LoopGesture * leGo = static_cast<geuzen::LoopGesture*> (gesture);
-  if (!leGo || leGo->tag() != myType) {
+  geuzen::LoopGesture * loopGest = static_cast<geuzen::LoopGesture*> (gesture);
+  if (!loopGest || loopGest->tag() != myType) {
     return QGestureRecognizer::Ignore;
   }
   QEvent::Type tipo = evt->type();
-  qDebug () << " event type " << tipo << "    leGo " << leGo << " tag " << myType 
-            <<  " state " << leGo->state();
-  qDebug () << "         flags st " << leGo->haveStarted << " tr " << leGo->triggered;
+  qDebug () << " event type " << tipo << "    loopGest " << loopGest << " tag " << myType 
+            <<  " state " << loopGest->state();
+  qDebug () << "         flags st " << loopGest->haveStarted << " tr " << loopGest->triggered;
   
   QGestureRecognizer::Result result (QGestureRecognizer::Ignore);
   QTouchEvent         * tev  = static_cast<QTouchEvent*> (evt);
@@ -51,32 +51,48 @@ LoopRecognizer::recognize (QGesture * gesture, QObject *watched, QEvent *evt)
     break;
   case QEvent::GraphicsSceneMouseMove:
     qDebug () << " GMGM gfx mouse move " << gev;
-    result = handleCursorMove (gesture,gev->scenePos());
+    if (loopGest->haveStarted) {
+      result = handleCursorMove (loopGest,gev->scenePos());
+    }
     break;
   case QEvent::MouseMove:
     qDebug () << " MMMM mouse move " << mev;
-    result = handleCursorMove (gesture,QPointF(mev->globalPos()));
+    if (loopGest->haveStarted) {
+      result = handleCursorMove (loopGest,QPointF(mev->globalPos()));
+    }
+    break;
+  case QEvent::MouseButtonPress:
+    qDebug () << " MMMM press " << mev;
+    loopGest->reset();
+    result = handleCursorMove (loopGest,QPointF(mev->globalPos()));
+    break;
+  case QEvent::GraphicsSceneMousePress:
+    qDebug () << " GMGM touch begin " << tev;
+    loopGest->reset();
+    result = handleCursorMove (loopGest,gev->lastScenePos());
     break;
   case QEvent::TouchBegin:
     qDebug () << " TTTT touch begin " << tev;
-    leGo->reset();
-    result = handleCursorMove (gesture,tev->touchPoints().at(0).scenePos());
+    loopGest->reset();
+    result = handleCursorMove (loopGest,tev->touchPoints().at(0).scenePos());
     break;
   case QEvent::TouchUpdate:
     qDebug() << " TTTT touch update " << tev;
-    result = handleCursorMove (gesture,tev->touchPoints().at(0).scenePos());
+    if (loopGest->haveStarted) {
+      result = handleCursorMove (loopGest,tev->touchPoints().at(0).scenePos());
+    }
     break;
   case QEvent::TouchEnd:
     qDebug() << " TTTT touch end " << tev;
-    result = handleCursorMove (gesture,tev->touchPoints().at(0).scenePos());
+    result = handleCursorMove (loopGest,tev->touchPoints().at(0).scenePos());
     break;
   case QEvent::Leave:
     qDebug () << " MMMM leave " << mev;
-    result = handleCursorMove (gesture,QPointF(mev->globalPos()));
+    result = handleCursorMove (loopGest,QPointF(mev->globalPos()));
     break;
   case QEvent::Move:
   case QEvent::GraphicsSceneMove:
-    leGo->reset();
+    loopGest->reset();
     result = QGestureRecognizer::CancelGesture;
     break;
   default:
@@ -102,27 +118,22 @@ LoopRecognizer::reset (QGesture *gesture)
 }
 
 QGestureRecognizer::Result
-LoopRecognizer::handleCursorMove (QGesture *gesture,
+LoopRecognizer::handleCursorMove (LoopGesture *gesture,
                                   QPointF scenePoint)
 {
   GEUZEN_PRETTY_DEBUG << gesture << scenePoint;
   if (gesture == 0) {
     return QGestureRecognizer::Ignore;
   }
-  LoopGesture * loGe = qobject_cast<LoopGesture*>(gesture);
-  if (!loGe) {
-    qDebug () << " wrong gesture " << gesture;
-    return QGestureRecognizer::Ignore;
-  }
   if (!(user && user->contains(user->mapFromScene(scenePoint)))) {
       return QGestureRecognizer::Ignore; // not our point
   }
-  QPointF last = loGe->lastPos;
-  loGe->lastPos = scenePoint;
-  if (!loGe->haveStarted) {
-    loGe->reset ();
-    loGe->haveStarted = true;
-    loGe->setHotSpot (scenePoint);
+  QPointF last = gesture->lastPos;
+  gesture->lastPos = scenePoint;
+  if (!gesture->haveStarted) {
+    gesture->reset ();
+    gesture->haveStarted = true;
+    gesture->setHotSpot (scenePoint);
     GEUZEN_PRETTY_DEBUG << " ____maybbe " << gesture << gesture->state();
     return QGestureRecognizer::Ignore;
   }
@@ -136,15 +147,15 @@ LoopRecognizer::handleCursorMove (QGesture *gesture,
   quint32 segment = (upDown << 8) | leftRight;
   qDebug () << hex << " new seg " << segment << dec;
   if (leftRight != 0 && upDown != 0) {
-    if (loGe->sequences.isEmpty()
-        || loGe->sequences.last() != segment) {
-     loGe-> sequences.append (segment);
+    if (gesture->sequence.isEmpty()
+        || gesture->sequence.last() != segment) {
+     gesture-> sequence.append (segment);
     }
   }
-  qDebug () << hex << loGe->sequences << dec;
-  if (chopTailCircle(loGe->sequences)) {
+  qDebug () << hex << gesture->sequence << dec;
+  if (chopTailCircle(gesture->sequence)) {
     qDebug () << " detected CIRCLE";
-    loGe->sequences.clear();
+    gesture->sequence.clear();
     GEUZEN_PRETTY_DEBUG << " fer SURE " << gesture << gesture->state();
     
     notifyUser();

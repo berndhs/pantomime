@@ -145,14 +145,8 @@ Rectangle {
     Rectangle {
       height:  200
       width: bottomHalf.width * 0.4
-      id: theButton
-      objectName:"BigButton"
+      id: rightButton
       color: Qt.darker (bottomHalf.color, 2.0)
-      function handleLoopGesture () {
-        mainTextBox.rotation += 15
-        console.log (objectName + " loop gesture " + mainTextBox.rotation)
-        return true;
-      }
       anchors {
         left: listArea.right
         top:listArea.top
@@ -160,10 +154,30 @@ Rectangle {
       
     }
     GeuzenLoopArea {
-      anchors.fill: theButton
+      id: turnRight
+      anchors.fill: rightButton
       onLooped: {
-        console.log ("loop detected")
+        console.log ("loop detected right")
         mainBox.rotateText (15)
+      }
+    }   
+    Rectangle {
+      height:  200
+      width: bottomHalf.width * 0.4
+      id: leftButton
+      color: Qt.lighter (bottomHalf.color, 2.0)
+      anchors {
+        right: listArea.left
+        top:listArea.top
+      }
+      
+    }
+    GeuzenLoopArea {
+      id: turnLeft
+      anchors.fill: leftButton
+      onLooped: {
+        console.log ("loop detected left")
+        mainBox.rotateText (-15)
       }
     }   
   }

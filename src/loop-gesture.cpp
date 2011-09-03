@@ -9,7 +9,7 @@ LoopGesture::LoopGesture (int tag, QObject *parent)
    triggered (false),
    myTag (tag)
 {
-  sequences.clear();
+  sequence.clear();
   qDebug () << __PRETTY_FUNCTION__;
 }
 
@@ -29,9 +29,9 @@ void
 LoopGesture::reset ()
 {
   qDebug () << __PRETTY_FUNCTION__;
-  sequences.clear();
+  sequence.clear();
   triggered = false;
-  haveStarted = 0;
+  haveStarted = false;
 }
 
 } // namespace

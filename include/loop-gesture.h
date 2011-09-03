@@ -31,7 +31,7 @@ public:
 private:
 
   QPointF         lastPos;
-  LoopSegmentList sequences;
+  LoopSegmentList sequence;
   
   bool haveStarted;
   bool triggered;
