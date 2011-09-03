@@ -1,0 +1,9 @@
+Some code to experiment with Qt Gestures
+
+The Qt Gesture feature as I found it for QML at this point (Sep 2, 2011)
+seems awkward and possibly broken. Recognizing gestures is not too hard,
+but it is not clear under what circumstances the gestures get delivered,
+and to which objects.
+
+This code tries to offer straightforward semantics about what is a gesture,
+and which objects receive it.
