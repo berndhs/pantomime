@@ -106,6 +106,14 @@ LoopRecognizer::recognize (QGesture * gesture, QObject *watched, QEvent *evt)
 }
 
 void
+LoopRecognizer::notifyUser()
+{
+  if (user) {
+    user->recognizerFoundLoop();
+  }
+}
+
+void
 LoopRecognizer::reset (QGesture *gesture)
 {
   GEUZEN_PRETTY_DEBUG;
@@ -162,14 +170,6 @@ LoopRecognizer::handleCursorMove (LoopGesture *gesture,
     
   }
   return QGestureRecognizer::Ignore;
-}
-
-void
-LoopRecognizer::notifyUser()
-{
-  if (user) {
-    user->recognizerFoundLoop();
-  }
 }
 
 bool

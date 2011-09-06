@@ -142,6 +142,14 @@ Rectangle {
         horizontalCenter: parent.horizontalCenter
       }
     }
+    GeuzenLoopArea {
+      id: turnRight
+      anchors.fill: rightButton
+      onLooped: {
+        console.log ("loop detected right")
+        mainBox.rotateText (15)
+      }
+    }   
     Rectangle {
       height:  200
       width: bottomHalf.width * 0.4
@@ -153,14 +161,6 @@ Rectangle {
       }
       
     }
-    GeuzenLoopArea {
-      id: turnRight
-      anchors.fill: rightButton
-      onLooped: {
-        console.log ("loop detected right")
-        mainBox.rotateText (15)
-      }
-    }   
     Rectangle {
       height:  200
       width: bottomHalf.width * 0.4

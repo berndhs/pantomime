@@ -1,5 +1,6 @@
-#include "loop-recognizer.h"
-
+#include "loop-gesture.h"
+#include <QDeclarativeItem>
+#include <QPointF>
 
 namespace geuzen
 {
@@ -21,17 +22,17 @@ signals:
 protected:
 
   bool sceneEvent (QEvent * evt);
-
-private:
-
-  LoopRecognizer      recognizer;
-
-  Qt::GestureType     loopType;
-
-  int     theWidth;
-  int     theHeight;
   
-  friend void LoopRecognizer::notifyUser();
+private:
+ 
+  void handleTouchMove (LoopGesture & gesture, const QPointF & screenPoint);
+  bool chopTailCircle (LoopSegmentList & sequence);
+  
+  LoopGesture         currentGesture;
+
+  LoopSegmentList  circle;
+  int              circleLen;
+  
 };
 
 } // namespace

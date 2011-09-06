@@ -21,7 +21,6 @@ RCC_DIR = tmp/rcc
 
 HEADERS = \
     include/loop-gesture.h \
-    include/loop-recognizer.h \
     include/loop-area.h \
     include/panto.h \
     include/orientation.h
@@ -38,7 +37,6 @@ OTHER_FILES += \
 SOURCES += \
     src/panto.cpp \
     src/loop-gesture.cpp \
-    src/loop-recognizer.cpp \
     src/loop-area.cpp \
     src/main.cpp \
     src/orientation.cpp

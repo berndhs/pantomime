@@ -3,26 +3,12 @@
 
 namespace geuzen
 {
-LoopGesture::LoopGesture (int tag, QObject *parent)
-  :QGesture (parent),
-   haveStarted (false),
-   triggered (false),
-   myTag (tag)
+LoopGesture::LoopGesture ()
+  :haveStarted (false),
+   triggered (false)
 {
-  sequence.clear();
   qDebug () << __PRETTY_FUNCTION__;
-}
-
-Qt::GestureState
-LoopGesture::state () const
-{
-  return QGesture::state();
-}
-
-Qt::GestureType
-LoopGesture::gestureType () const
-{
-  return Qt::CustomGesture;
+  sequence.clear();
 }
 
 void
@@ -30,8 +16,20 @@ LoopGesture::reset ()
 {
   qDebug () << __PRETTY_FUNCTION__;
   sequence.clear();
-  triggered = false;
   haveStarted = false;
+  triggered = false;
+}
+
+QPointF
+LoopGesture::hotSpot () const
+{
+  return theHotSpot;
+}
+
+void
+LoopGesture::setHotSpot(const QPointF hotSpot)
+{
+  theHotSpot = hotSpot;
 }
 
 } // namespace

@@ -1,3 +1,9 @@
+pantomime (0.0.2) unstable; urgency=low
+
+  * Simplified without (ab)using QGesture framework
+
+ -- Bernd Stramm <bernd.stramm@gmail.com>  Tue, 06 Sep 2011 12:00:00 -0000
+
 pantomime (0.0.1) unstable; urgency=low
 
   * Initial Release.
